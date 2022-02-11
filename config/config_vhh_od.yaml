@@ -29,7 +29,7 @@ OdCore:
   SAVE_RAW_RESULTS: 0       # 1 ... yes 0 ... no
   ###
   # This parameter is used to specify the path for saving the raw results.
-  PATH_RAW_RESULTS: "results/od/raw_results/"
+  PATH_RAW_RESULTS: "/data/share/dhelm/film_evaluation/results/od/raw_results/"
   ###
   # This parameter is used to specify the prefix for the results file.
   PREFIX_RAW_RESULTS: "results_raw_"
@@ -42,7 +42,7 @@ OdCore:
   SAVE_FINAL_RESULTS: 1     # 1 ... yes 0 ... no
   ###
   # This parameter is used to specify the path for saving the final results.
-  PATH_FINAL_RESULTS: "results/od/final_results/"
+  PATH_FINAL_RESULTS: "/data/share/dhelm/film_evaluation/results/od/final_results/"
   ###
   # This parameter is used to specify the prefix for the results file.
   PREFIX_FINAL_RESULTS: "results_"
@@ -52,7 +52,7 @@ OdCore:
 
   ###
   # This parameter is used to specify the path to the videos.
-  PATH_VIDEOS: "videos/"
+  PATH_VIDEOS: "/data/share/dhelm/film_evaluation/films/"
 
   ###
   # This parameter is used to specify the path to the pre-trained model.
@@ -106,7 +106,7 @@ OdCore:
   MAX_FRAMES: 2000
   ###
   # Enables the classifier
-  USE_CLASSIFIER: 1
+  USE_CLASSIFIER: 0
   ###
   # Enable majority classification, a detected object will be given the classification which appears the most often 
   # (this applies only to classification and not to object detection)

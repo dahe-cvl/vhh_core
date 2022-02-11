@@ -29,22 +29,22 @@ PreProcessing:
 OpticalFlow:
   ###
   # This parameter is used to specify the ratio between available motion-vectors-of-interest to the all motion-vectors.
-  MVI_MV_RATIO: 0.2 
+  MVI_MV_RATIO: 0.001 
   ###
   # This parameter is used to specify the threshold (t1) for the significance check.
-  THRESHOLD_SIGNIFICANCE: 2.0
+  THRESHOLD_SIGNIFICANCE: 1.8
   ###
   # This parameter is used to specify the threshold (t2) for the consistency check.
-  THRESHOLD_CONSISTENCY: 2.3
+  THRESHOLD_CONSISTENCY: 2.2
   ###
   # This parameter is used to specify the temporal window_size (k) for the significance/consistency check.
-  MVI_WINDOW_SIZE: 10
+  MVI_WINDOW_SIZE: 6
   ###
   # This parameter is used to specify the temporal window_size (n) for the final movements classification over one shot.
-  REGION_WINDOW_SIZE: 5
+  REGION_WINDOW_SIZE: 2
   ###
   # This parameter is used to specify the percentage threshold to identify movement activities.
-  ACTIVE_THRESHOLD: 0.1
+  ACTIVE_THRESHOLD: 0.2
 
 CmcCore:
   ###
@@ -56,7 +56,7 @@ CmcCore:
   SAVE_RAW_RESULTS: 0       # 1 ... yes 0 ... no
   ###
   # This parameter is used to specify the path for saving the raw results.
-  PATH_RAW_RESULTS: "results/cmc/raw_results/"
+  PATH_RAW_RESULTS: "/data/share/dhelm/film_evaluation/results/cmc/raw_results/"
   NUMBER_OF_FRAMES_PER_SHOT: 5  # save x frames per shot
   ###
   # This parameter is used to specify the prefix for the results file.
@@ -70,7 +70,7 @@ CmcCore:
   SAVE_FINAL_RESULTS: 1     # 1 ... yes 0 ... no
   ###
   # This parameter is used to specify the path for saving the final results.
-  PATH_FINAL_RESULTS: "results/cmc/final_results/"
+  PATH_FINAL_RESULTS: "/data/share/dhelm/film_evaluation/results/cmc/final_results/"
   ###
   # This parameter is used to specify the prefix for the results file.
   PREFIX_FINAL_RESULTS: "results_"
@@ -80,7 +80,7 @@ CmcCore:
 
   ###
   # This parameter is used to specify the path to the videos.
-  PATH_VIDEOS: "videos/"
+  PATH_VIDEOS: "/data/share/dhelm/film_evaluation/films/"
 
 Evaluation:
   ###
