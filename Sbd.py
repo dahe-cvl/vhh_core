@@ -43,6 +43,7 @@ class Sbd(object):
             video_instance.printInfo()
             vid = str(video_instance.id)
             video_filename = os.path.join(video_instance.download_path, vid + "." + video_instance.video_format) 
+            print(video_filename)
             self.__sbd_instance.runOnSingleVideo(video_filename=video_filename,
                                                  max_recall_id=video_instance.id)
 

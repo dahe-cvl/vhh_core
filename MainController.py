@@ -2,6 +2,7 @@ from Sbd import Sbd
 from Stc import Stc
 from Cmc import Cmc
 from Odt import Odt
+from Video import Video
 from VhhRestApi import VhhRestApi
 from Configuration import Configuration
 import numpy as np
@@ -69,33 +70,25 @@ class MainController(object):
 
         print("Start automatic annotation process ... ")
         
-        # get list of videos in mmsi
-        video_instance_list = self.__rest_api_instance.getListofVideos()
-        # video_instance_list = video_instance_list[0:2]
+        # get film list from local directory
+        videos_file_l = os.listdir(self.__configuration_instance.video_download_path)
 
-        # cleanup coplete results and video folder
-        if (self.__configuration_instance.cleanup_flag == 1):
-            for video_instance in video_instance_list:
-                video_instance.cleanup()
-
-        #
-        # COLLECT VIDEOS
-        #
-
-        videos_to_process = []
-        for i, video_instance in enumerate(video_instance_list):
-            # For now we only care for shot and object detection
-            # if (not video_instance.processed_flags["shots"]) or (not video_instance.processed_flags["objects"]):
-
-            if (not video_instance.processed_flags["shots"]):
-                videos_to_process.append(video_instance)
-            
-        if(len(videos_to_process) == 0):
-            print("All videos are already processed!")
-            exit()   
-        else:
-            print("Found {0} videos to process".format(len(videos_to_process)))
-
+        video_instance_list = []
+        for i, entry in enumerate(videos_file_l):
+            vid = entry.split('.')[0]
+            originalFileName = entry
+            url = os.path.join(self.__configuration_instance.video_download_path, entry)
+            video_instance = Video(self.__configuration_instance)
+            video_instance.create_video(vid=vid,
+                                        originalFileName=originalFileName,
+                                        url=url,
+                                        download_path=self.__video_download_path,
+                                        processed_flag_shots = False,
+                                        processed_flag_objects = False,
+                                        processed_flag_relations = False,
+                                        processed_flag_overscan = False)
+            video_instance_list.append(video_instance)
+        videos_to_process = video_instance_list
         #exit()
 
         print("-------------------------------------------------------------------")
@@ -107,32 +100,16 @@ class MainController(object):
             end_pos = i + batch_size
             batch_video_instance_list = videos_to_process[start_pos:end_pos]
                         
-            for video_instance in batch_video_instance_list:
-                video_instance.printInfo()
-
+            #for video_instance in batch_video_instance_list:
+            #    video_instance.printInfo()
+            
             # cleanup video and results folder
             if (self.__configuration_instance.cleanup_flag == 1):
                 for video_instance in video_instance_list:
                     video_instance.cleanup()
 
-            #
-            # DOWNLOAD VIDEOS
-            #
-
-            # download if not available
-            for video_instance in batch_video_instance_list:
-                if (video_instance.is_downloaded() == False):
-                    ret = video_instance.download(self.__rest_api_instance)
-
-                    # if for some reason it is not possible to download the video than skip it
-                    print(ret)
-                    if(ret == False):
-                        print("Not able to download this video! e.g. access restrictions or missing video file! --> skip")
-                        continue
-
-
-            videos_to_process_shots = list(filter(lambda x: not x.processed_flags["shots"], batch_video_instance_list))
-            videos_to_download_shots = list(filter(lambda x: x.processed_flags["shots"], batch_video_instance_list))
+            videos_to_process_shots = batch_video_instance_list
+            videos_to_process_objects = batch_video_instance_list
 
             #
             # RUN THE PIPELINE
@@ -147,42 +124,22 @@ class MainController(object):
             if self.__configuration_instance.use_stc:
                 self.__stc_instance.run(video_instance_list=videos_to_process_shots)
 
-            # Download shot info (SBD, STC & CMC) for already processed videos
-            for video_instance in videos_to_download_shots:
-                self.__rest_api_instance.getShotResults(vid=video_instance.id)
-
             # run cmc (only on videos with non processed shots)
             if self.__configuration_instance.use_cmc:
                 self.__cmc_instance.run(video_instance_list=videos_to_process_shots)
-
-            videos_to_process_objects = list(filter(lambda x: not x.processed_flags["objects"], batch_video_instance_list))
-            videos_to_download_objects = list(filter(lambda x: x.processed_flags["objects"], batch_video_instance_list))
 
             # run odt
             if self.__configuration_instance.use_odt:
                 self.__odt_instance.run(video_instance_list = videos_to_process_objects)
 
-            # TODO: Download object detection data for videos that are already processed
-
             #
             # GET RESULTS IN CORRECT FORMAT TO POST
             #  
-
             results_sba = self.merge_results_SBA(batch_video_instance_list)
             sba_paths = self.store_SBA_results(results_sba)
                       
             results_oba = self.format_results_OBA(batch_video_instance_list)
             oba_paths = self.store_OBA_results(results_oba)
-
-            
-            #
-            # SEND TO VHH MMSI
-            #
-            
-            print("SENDING TO SERVER:", self.__configuration_instance.do_send_to_server)
-            if self.__configuration_instance.do_send_to_server:
-                self.__rest_api_instance.postSBAResults(sba_paths)
-                self.__rest_api_instance.postOBAResults(oba_paths)
                             
         print("Successfully finished!")
 
