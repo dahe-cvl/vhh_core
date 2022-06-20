@@ -56,3 +56,16 @@ Folders for the downloaded videos and the results will be automatically created 
    * ```python Demo/run_automatic_annotation_process.py```
    * Import models for SBD and STC.
    * ```python Demo/run_automatic_annotation_process.py```
+
+
+## Helpful Scripts
+The `Develop` folder contains a variety of useful scripts. Here we just include a short description of each, for more information check the description at the start of each script or run them with the `-h` parameter.
+
+* `compare_videos.py` Creates a side-by-side comparison of two given videos
+* `download_annotation_results.py` Download shot based video annotation results from VhhMMSI 
+* `download_relations.py` Download relation annotations from VhhMMSI
+* `download_video_metadata.py` Download video metadata from VhhMMSI
+* `download_videos.py` Download videos from VhhMMSI
+* `generate_sequences_from_relations.py` Extract video sequences from relations annotations
+* `post_cmc_results.py` Upload a camera annotation from vhh_core to VhhMMSI
+* `post_od_results.py` Upload an object detection annotation from vhh_core to VhhMMSI

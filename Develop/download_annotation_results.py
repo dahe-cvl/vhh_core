@@ -4,7 +4,7 @@ import argparse, os
 import Utils
 
 """
-Download all annotation results.
+Download all shot based annotation results.
 For more details on the parameters please call this script with the parameter '-h'
 Needs to be run from INSIDE the Develop directory
 
