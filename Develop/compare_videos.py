@@ -4,17 +4,10 @@ The videos should have the same width and height.
 Written to compare YOLOv3 with YOLOv5.
 """
 
+from math import ceil, floor
 import cv2
 import numpy as np
 from PIL import Image
-
-
-# def resize(img, w, h, fill_color=(0, 0, 0, 0)):
-#     print(img)
-#     x, y, _ = img.shape
-#     new_img = Image.new('RGBA', (h, w), fill_color)
-#     new_img.paste(img, (int((w - x) / 2), int((h - y) / 2)))
-#     return new_img
 
 def main(video1_path, video2_path, video1_info, video2_info, output_path):
     cap1 = cv2.VideoCapture(video1_path)
@@ -33,7 +26,6 @@ def main(video1_path, video2_path, video1_info, video2_info, output_path):
 
         # Stop if both of the videos have ended
         if not ret1 and not ret2:
-            print(ret1, ret2)
             break
 
         if ret1:
@@ -52,17 +44,28 @@ def main(video1_path, video2_path, video1_info, video2_info, output_path):
                 return
             combined_shape = (max(shape1[0], shape2[0]), max(shape1[1], shape2[1]))
 
-        # frame1 = resize(frame1, combined_shape[0], combined_shape[1])
-        # frame2 = resize(frame1, combined_shape[0], combined_shape[1])
-        # print("after", frame1.shape, frame2.shape)
-
-        
-
         # Resize image, only if it has not been resized before
-        frame1 = cv2.resize(frame1, combined_shape)
-        frame2 = cv2.resize(frame2, combined_shape)
+        if ret1:
+            frame1 = cv2.copyMakeBorder(
+                 frame1, 
+                 ceil((combined_shape[0] - shape1[0]) / 2),
+                 floor((combined_shape[0] - shape1[0]) / 2), 
+                 ceil((combined_shape[1] - shape1[1]) / 2), 
+                 floor((combined_shape[1] - shape1[1]) / 2), 
+                 cv2.BORDER_CONSTANT, 
+                 value=(0,0,0)
+              )
 
-
+        if ret2:
+            frame2 = cv2.copyMakeBorder(
+                 frame2, 
+                 ceil((combined_shape[0] - shape2[0]) / 2),
+                 floor((combined_shape[0] - shape2[0]) / 2), 
+                 ceil((combined_shape[1] - shape2[1]) / 2), 
+                 floor((combined_shape[1] - shape2[1]) / 2), 
+                 cv2.BORDER_CONSTANT, 
+                 value=(0,0,0)
+              )
         
         cv2.putText(frame1, video1_info, (20, frame1.shape[0]- 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 0), 2)
         cv2.putText(frame2, video2_info, (20, frame1.shape[0]- 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 0), 2)

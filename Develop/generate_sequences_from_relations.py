@@ -3,7 +3,7 @@ Given a directory of relations (can be generated via download_relations.py)
 this script will generate the video sequences for each relation of selected VIDs
 
 Example use:
-
+     python generate_sequences_from_relations.py -a -d /data/ext/VHH/datasets/Relations/Annotations -p /data/ext/VHH/datasets/Relations/Relations
 """
 
 import argparse
@@ -36,7 +36,14 @@ def get_relations_path(data_path, id):
     """
     return os.path.join(data_path, f"relations_{id}.json")
 
-def download_video(RestAPI, tmp_path, video_list, id):
+
+def get_video_from_list(video_list, id):
+    relevant_videos = list(filter(lambda v: v.id == int(id), video_list))
+    if len(relevant_videos) != 1:
+        return None
+    return relevant_videos[0]
+
+def download_video(RestAPI, tmp_path, video, id):
     """
     For a given ID, downloads the video unless it is already stored
     Returns path to video
@@ -47,15 +54,10 @@ def download_video(RestAPI, tmp_path, video_list, id):
     if os.path.exists(video_path):
         return video_path
 
-    # Get video instance
-    relevant_videos = list(filter(lambda v: v.id == int(id), video_list))
-    assert len(relevant_videos) == 1
-    video = relevant_videos[0]
-
     video.download(RestAPI)
     return video_path
 
-def generate_snippet(RestAPI, path_snippet, tmp_path, video_list, id, inPoint, outPoint):
+def generate_snippet(RestAPI, path_snippet, tmp_path, video, id, inPoint, outPoint):
     """
     Stores a snippet at the given path
     1 must be subtracted from inPoint and outPoint BEFORE this function if the data comes from VhhMMSI
@@ -65,7 +67,7 @@ def generate_snippet(RestAPI, path_snippet, tmp_path, video_list, id, inPoint, o
         return
 
 
-    video_path = download_video(RestAPI, tmp_path, video_list, id)
+    video_path = download_video(RestAPI, tmp_path, video, id)
     
     # Collect images
     images = []
@@ -161,13 +163,20 @@ for id in ids:
         if relation["leftType"] != "frame_range" or relation["rightType"] != "frame_range":
             continue
 
+        # Check if the ids point to valid videos
+        video1 = get_video_from_list(video_list, relation["leftValue"])
+        video2 = get_video_from_list(video_list, relation["rightValue"])
+
+        if video1 is None or video2 is None:
+            continue
+
         output_path = join_path_mkdir_if_not_exists(film_dir_path, f"Relation_{count}")
 
         left_snippet_path = os.path.join(output_path, "left.m4v")
         right_snippet_path = os.path.join(output_path, "right.m4v")
 
-        generate_snippet(RestAPI,  left_snippet_path, tmp_path, video_list, relation["leftValue"], relation["leftStart"], relation["leftEnd"])
-        generate_snippet(RestAPI,  right_snippet_path, tmp_path, video_list, relation["rightValue"], relation["rightStart"], relation["rightEnd"])
+        generate_snippet(RestAPI,  left_snippet_path, tmp_path, video1, relation["leftValue"], relation["leftStart"], relation["leftEnd"])
+        generate_snippet(RestAPI,  right_snippet_path, tmp_path, video2, relation["rightValue"], relation["rightStart"], relation["rightEnd"])
 
         with open(os.path.join(output_path, "relation.json"), 'w') as file:
             json.dump(relation, file)
